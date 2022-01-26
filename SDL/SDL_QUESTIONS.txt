@@ -1,0 +1,18 @@
+what is a window?
+the window we will be rendering to?
+what is window rendering!?
+
+what is window surface?
+
+what is SDL initialization?
+should it mean that we need to initizlise specifi features 
+like audio keyboard input and widio (window rendering)
+
+
+what is screen surface filling? 
+
+why we need to update SDL window?
+
+why delay is needed for update?
+
+why we need to quit SDL subsystems at the end?

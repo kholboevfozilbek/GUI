@@ -1,0 +1,8 @@
+﻿  implementations.cpp
+  main.cpp
+  Generating code
+  2 of 9 functions (22.2%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  SDL2_Surface_Image_BMP_Blitting_2.vcxproj -> C:\Users\acer\Desktop\active\SDL\ketdik\oop_SDL\SDL2_Surface_Image_BMP_Blitting_2\x64\Release\SDL2_Surface_Image_BMP_Blitting_2.exe

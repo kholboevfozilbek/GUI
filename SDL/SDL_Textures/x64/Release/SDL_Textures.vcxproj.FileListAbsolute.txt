@@ -1,0 +1,2 @@
+C:\Users\acer\Desktop\SDL\SDL_Textures\x64\Release\SDL_Textures.exe
+C:\Users\acer\Desktop\active\SDL\SDL_Textures\x64\Release\SDL_Textures.exe

@@ -1,0 +1,11 @@
+﻿  main.cpp
+C:\Users\acer\Desktop\SDL\SDL_Surfaces\main.cpp(17,1): warning C4297: 'SDL_main': function assumed not to throw an exception but does
+C:\Users\acer\Desktop\SDL\SDL_Surfaces\main.cpp(17,1): message : __declspec(nothrow), throw(), noexcept(true), or noexcept was specified on the function
+C:\Users\acer\Desktop\SDL\SDL_Surfaces\main.cpp(33,1): warning C4297: 'SDL_main': function assumed not to throw an exception but does
+C:\Users\acer\Desktop\SDL\SDL_Surfaces\main.cpp(33,1): message : __declspec(nothrow), throw(), noexcept(true), or noexcept was specified on the function
+  Generating code
+  4 of 20 functions (20.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  general_introto_SDL_Event.vcxproj -> C:\Users\acer\Desktop\SDL\SDL_Events\general_introto_SDL_Event\x64\Release\general_introto_SDL_Event.exe
