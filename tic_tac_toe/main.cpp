@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 using namespace std;
 
@@ -16,6 +17,11 @@ int main(int argc, char* args[])
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
 		cout << "Could not initialise SDL2: -> " << SDL_GetError() << endl;
 	cout << "\nSDL2 successfully initialised \n";
+
+	if (TTF_Init() < 0)
+		cout << "True Type Font coud NOT be loaded" << endl;
+	else
+		cout << "True Type Font is  loaded" << endl;
 
 	//the window we will render to ...
 	SDL_Window* window = nullptr;
