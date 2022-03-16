@@ -149,11 +149,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Home_Window.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Tic_Tac_Toe.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Board_Rect.h" />
+    <ClInclude Include="Buttons.h" />
+    <ClInclude Include="Home_Window.h" />
     <ClInclude Include="Tic_Tac_Toe.h" />
+    <ClInclude Include="Window_Rect.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
