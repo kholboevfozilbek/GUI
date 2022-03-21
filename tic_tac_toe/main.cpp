@@ -13,7 +13,12 @@ int main(int argc, char* args[])
 
 	h.Execute(number_players, level);
 
+	h.Free_Resources();
 	cout << "\nNumber of players:  " << number_players << endl;
 	cout << "\nLevel:  " <<  level << endl;
+
+	game.set_player_level(number_players, level);
+
+	game.Execute();
 	return 0;
 }

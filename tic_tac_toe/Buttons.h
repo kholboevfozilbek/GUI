@@ -23,6 +23,17 @@ public:
 
 	Button() = default;
 
+	~Button()
+	{
+		SDL_FreeSurface(own_surface);
+		SDL_DestroyTexture(own_texture);
+	}
+
+	void Free_Resources()
+	{
+		SDL_FreeSurface(own_surface);
+		SDL_DestroyTexture(own_texture);
+	}
 	Button(int x, int y, int w, int h, bool active_state)
 	{
 		this->own_rectangle.x = x;

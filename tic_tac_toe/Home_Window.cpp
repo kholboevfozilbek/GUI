@@ -35,6 +35,24 @@ Home_Window::Home_Window()
 
 }
 
+Home_Window::~Home_Window()
+{
+	
+}
+
+void Home_Window::Free_Resources()
+{
+	SDL_FreeSurface(surface);
+	if (renderer)
+		SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+
+	SDL_FreeSurface(text_surface);
+	SDL_DestroyTexture(text_texture);
+
+
+	TTF_CloseFont(our_font);
+}
 
 void Home_Window::Initiliase()
 {

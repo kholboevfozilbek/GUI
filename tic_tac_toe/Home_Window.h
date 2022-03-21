@@ -8,6 +8,7 @@
 #include "Board_Rect.h"
 #include "Window_Rect.h"
 #include "Buttons.h"
+#include "Empty_Space.h"
 using namespace std;
 
 class Home_Window {
@@ -51,7 +52,9 @@ private:
 public:
 
 	Home_Window();
+	~Home_Window();
 	void Initiliase();
+	void Free_Resources();
 	void Execute(int& number_players, int& level);
 	void Event_Handler(SDL_Event& event);
 	void Render();
