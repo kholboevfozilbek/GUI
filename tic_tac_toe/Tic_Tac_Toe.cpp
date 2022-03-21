@@ -607,7 +607,7 @@ void Tic_Tac_Toe::single_player_mode()
 		basic_level_game();
 		break;
 	case 3:
-		//hard_level_game();
+		hard_level_game();
 		break;
 	default:
 		break;
@@ -660,6 +660,60 @@ void Tic_Tac_Toe::basic_level_game()
 	our_single_user.set_turn(true);
 }
 
+void Tic_Tac_Toe::hard_level_game()
+{
+	/*
+	*		hard level we are able to block ROW WISE, COLUMNWISE, AND DIAGONALLY
+	*/
+
+
+	bool one_place_filled = false;
+	/*
+			so we check all 3 rows if there is near win situation if yes we should block it.
+			we gonna place opposite symbol to users
+	*/
+	one_place_filled = first_row_check_block();
+
+	//		if no place has been filled by first_row_check then we go for second row
+
+	if (one_place_filled == false)
+	{
+		one_place_filled = second_row_check_block();
+
+		//	if still no place has been filled then we go to third_wor_check_block
+
+		if (one_place_filled == false)
+		{
+			one_place_filled = third_row_check_block();
+		}
+	}
+
+	//	if still no place has been filled then we go to COLUMN WISE CHECK
+
+	if (one_place_filled == false)
+	{
+		one_place_filled = first_column_check_block();
+
+		if (one_place_filled == false)
+		{
+			one_place_filled = second_column_check_block();
+
+			if (one_place_filled == false)
+			{
+				one_place_filled = third_column_check_block();
+			}
+		}
+	}
+
+
+	//		IF STILL NO PLACE HAS BEEN FILLED ADDITIONALLY WE LOOK FOR COLUMNS
+
+	if (one_place_filled == false)
+		diagonally_block();
+
+	// I make sure that in AI's turn it will surely fill one position
+	our_single_user.set_turn(true);
+}
 
 void Tic_Tac_Toe::rowwise_block()
 {
@@ -821,6 +875,79 @@ void Tic_Tac_Toe::columnwise_block()
 			}
 		}
 	}
+}
+
+void Tic_Tac_Toe::diagonally_block()
+{
+	bool one_place_filled = false;
+
+	one_place_filled = first_diagonal_check_block();
+
+	if (one_place_filled == false)
+	{
+		one_place_filled = second_diagonal_check_block();
+	}
+
+	// if still no place has been filled we put some random number;
+
+	if (one_place_filled == false)
+	{
+		std::list<Empty_Space> list_empty_spaces;
+		int x;
+
+		for (int i = 0; i < 3; ++i)
+		{
+			for (int j = 0; j < 3; ++j)
+			{
+				if (board_arr[i][j].get_emptyness() == true)
+				{
+					list_empty_spaces.push_back(Empty_Space(i, j));
+				}
+			}
+		}
+
+		// I need to generate one random number x = from 0 to list_empty_spaces.size() - 1;
+		std:mt19937 gen(rd());
+		std::uniform_int_distribution<int> dist(0, list_empty_spaces.size() - 1);
+
+		x = dist(gen);
+
+		if (our_single_user.get_symbol() == 'X')
+		{
+			int i = 0;
+			for (auto it = list_empty_spaces.begin(); it != list_empty_spaces.end(); ++it)
+			{
+				if (i == x)
+				{
+					board_arr[(*it).i][(*it).j].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[(*it).i][(*it).j].get_ownTexture(), NULL, board_arr[(*it).i][(*it).j].get_ownRect());
+					board_arr[(*it).i][(*it).j].set_placedChar('O');
+					board_arr[(*it).i][(*it).j].set_empty(false);
+
+					cout << "\nboard_arr " << "  " << (*it).i << "  " << (*it).j << endl;
+				}
+
+				++i;
+			}
+		}
+		else
+		{
+			int i = 0;
+			for (auto it = list_empty_spaces.begin(); it != list_empty_spaces.end(); ++it)
+			{
+				if (i == x)
+				{
+					board_arr[(*it).i][(*it).j].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[(*it).i][(*it).j].get_ownTexture(), NULL, board_arr[(*it).i][(*it).j].get_ownRect());
+					board_arr[(*it).i][(*it).j].set_placedChar('X');
+					board_arr[(*it).i][(*it).j].set_empty(false);
+				}
+
+				++i;
+			}
+		}
+	}
+
 }
 
 bool Tic_Tac_Toe::first_row_check_block()
@@ -1494,6 +1621,262 @@ bool Tic_Tac_Toe::third_column_check_block()
 
 	// if no combination works we have to let upper columnwise check know that from first row no place has been filled 
 	// such that we go for second row
+
+	return false;
+}
+
+bool Tic_Tac_Toe::first_diagonal_check_block()
+{
+	/*    *  *  x
+		  *  x  *
+		  x  *  *
+	*/
+
+	if (board_arr[0][2].get_placedChar() == board_arr[1][1].get_placedChar())
+	{
+		if (board_arr[2][0].get_emptyness() == true)
+		{
+			switch (board_arr[1][1].get_placedChar())
+			{
+			case 'X': // we should place exactly opposite
+				if (our_single_user.get_symbol() != 'O')
+				{
+					board_arr[2][0].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][0].get_ownTexture(), NULL, board_arr[2][0].get_ownRect());
+					board_arr[2][0].set_empty(false);
+					board_arr[2][0].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
+					break;
+				}
+				break;
+			case 'O':
+				if (our_single_user.get_symbol() != 'X')
+				{
+					board_arr[2][0].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][0].get_ownTexture(), NULL, board_arr[2][0].get_ownRect());
+					board_arr[2][0].set_empty(false);
+					board_arr[2][0].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
+					break;
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		// if this  -  -  > combination does not work it is too early to return false we have to check other combinations as well 
+	}
+
+	/*    *  *  x
+		  *  x  *
+		  x  *  *
+	*/
+
+	if (board_arr[2][0].get_placedChar() == board_arr[1][1].get_placedChar())
+	{
+		if (board_arr[0][2].get_emptyness() == true)
+		{
+			switch (board_arr[1][1].get_placedChar())
+			{
+			case 'X': // we should place exactly opposite
+				if (our_single_user.get_symbol() != 'O')
+				{
+					board_arr[0][2].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][2].get_ownTexture(), NULL, board_arr[0][2].get_ownRect());
+					board_arr[0][2].set_empty(false);
+					board_arr[0][2].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
+					break;
+				}
+				break;
+			case 'O':
+				if (our_single_user.get_symbol() != 'X')
+				{
+					board_arr[0][2].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][2].get_ownTexture(), NULL, board_arr[0][2].get_ownRect());
+					board_arr[0][2].set_empty(false);
+					board_arr[0][2].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
+					break;
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		// if this  -  -  > combination does not work it is too early to return false we have to check other combinations as well 
+	}
+
+	/*    *  *  x
+		  *  x  *
+		  x  *  *
+	*/
+
+	if (board_arr[2][0].get_placedChar() == board_arr[0][2].get_placedChar())
+	{
+		if (board_arr[1][1].get_emptyness() == true)
+		{
+			switch (board_arr[0][2].get_placedChar())
+			{
+			case 'X': // we should place exactly opposite
+				if (our_single_user.get_symbol() != 'O')
+				{
+					board_arr[1][1].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][1].get_ownTexture(), NULL, board_arr[1][1].get_ownRect());
+					board_arr[1][1].set_empty(false);
+					board_arr[1][1].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
+					break;
+				}
+				break;
+			case 'O':
+				if (our_single_user.get_symbol() != 'X')
+				{
+					board_arr[1][1].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][1].get_ownTexture(), NULL, board_arr[1][1].get_ownRect());
+					board_arr[1][1].set_empty(false);
+					board_arr[1][1].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
+					break;
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		// if this  -  -  > combination does not work it is too early to return false we have to check other combinations as well 
+	}
+
+	// if no combination works we have to let upper diagonally_check check know that from first diagonall no place has been filled 
+	// such that we go for second diagonall
+
+	return false;
+}
+
+bool Tic_Tac_Toe::second_diagonal_check_block()
+{
+	/*    x  *  *
+		  *  x  *
+		  *  *  x
+	*/
+
+	if (board_arr[0][0].get_placedChar() == board_arr[1][1].get_placedChar())
+	{
+		if (board_arr[2][2].get_emptyness() == true)
+		{
+			switch (board_arr[1][1].get_placedChar())
+			{
+			case 'X': // we should place exactly opposite
+				if (our_single_user.get_symbol() != 'O')
+				{
+					board_arr[2][2].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][2].get_ownTexture(), NULL, board_arr[2][2].get_ownRect());
+					board_arr[2][2].set_empty(false);
+					board_arr[2][2].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
+					break;
+				}
+				break;
+			case 'O':
+				if (our_single_user.get_symbol() != 'X')
+				{
+					board_arr[2][2].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][2].get_ownTexture(), NULL, board_arr[2][2].get_ownRect());
+					board_arr[2][2].set_empty(false);
+					board_arr[2][2].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
+					break;
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		// if this  -  -  > combination does not work it is too early to return false we have to check other combinations as well 
+	}
+
+	/*    x  *  *
+		  *  x  *
+		  *  *  x
+	*/
+
+	if (board_arr[2][2].get_placedChar() == board_arr[1][1].get_placedChar())
+	{
+		if (board_arr[0][0].get_emptyness() == true)
+		{
+			switch (board_arr[1][1].get_placedChar())
+			{
+			case 'X': // we should place exactly opposite
+				if (our_single_user.get_symbol() != 'O')
+				{
+					board_arr[0][0].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][0].get_ownTexture(), NULL, board_arr[0][0].get_ownRect());
+					board_arr[0][0].set_empty(false);
+					board_arr[0][0].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
+					break;
+				}
+				break;
+			case 'O':
+				if (our_single_user.get_symbol() != 'X')
+				{
+					board_arr[0][0].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][0].get_ownTexture(), NULL, board_arr[0][0].get_ownRect());
+					board_arr[0][0].set_empty(false);
+					board_arr[0][0].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
+					break;
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		// if this  -  -  > combination does not work it is too early to return false we have to check other combinations as well 
+	}
+
+	/*    x  *  *
+		  *  x  *
+		  *  *  x
+	*/
+
+	if (board_arr[2][2].get_placedChar() == board_arr[0][0].get_placedChar())
+	{
+		if (board_arr[1][1].get_emptyness() == true)
+		{
+			switch (board_arr[0][0].get_placedChar())
+			{
+			case 'X': // we should place exactly opposite
+				if (our_single_user.get_symbol() != 'O')
+				{
+					board_arr[1][1].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][1].get_ownTexture(), NULL, board_arr[1][1].get_ownRect());
+					board_arr[1][1].set_empty(false);
+					board_arr[1][1].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
+					break;
+				}
+				break;
+			case 'O':
+				if (our_single_user.get_symbol() != 'X')
+				{
+					board_arr[1][1].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][1].get_ownTexture(), NULL, board_arr[1][1].get_ownRect());
+					board_arr[1][1].set_empty(false);
+					board_arr[1][1].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
+					break;
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		// if this  -  -  > combination does not work it is too early to return false we have to check other combinations as well 
+	}
+
+	// if no combination works we have to let upper diagonally_check check know that from second diagonall no place has been filled 
+	// such that we random number
 
 	return false;
 }

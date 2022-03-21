@@ -91,6 +91,7 @@ public:
 	void single_player_mode();
 	void beginner_level_game();
 	void basic_level_game();
+	void hard_level_game();
 
 	void rowwise_block();
 	bool first_row_check_block();
@@ -100,6 +101,9 @@ public:
 	bool first_column_check_block();
 	bool second_column_check_block();
 	bool third_column_check_block();
+	void diagonally_block();
+	bool first_diagonal_check_block();
+	bool second_diagonal_check_block();
 
 	
 };
