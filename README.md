@@ -1,6 +1,6 @@
 # GUI
 
-Alright, lets get this GUI thing, get sorted out. 
+Alright, lets get this GUI thing, get sorted out.  \
 Honestly, I have been continiously searching how to begin GUI topic. 
 By which language and framework combination I start with, would suit the me (as complete beginner to GUI)
 I found out these ones 
