@@ -1,14 +1,14 @@
 # GUI
 
 Alright, lets get this GUI thing, get sorted out.  \
-Honestly, I have been continiously searching how to begin GUI topic. 
-By which language and framework combination I start with, would suit the me (as complete beginner to GUI)
-I found out these ones 
-  C# (.NET, WPF, WindowsForms Uno Mono ... ) -> perfect easy, advanced GUI features, native look(since Microsoft), low or no code at all,  but only for windows
-  Java (JavaFx, Swing ... ) -> cross-platfrom, a little learning required, moderate GUI features, but some performace issues 
-  C, C++
-      -> frameworks (Qt, wxWidgets, gtkmm, GTK+, Juce), old-school look, good-enough GUI, cross-platform (I guess) but solid performace
-      -> going hard way (hard coded libraries, SDL2, openGL, some rendering stuff. Everything is by hand)
+Honestly, I have been continiously searching how to begin GUI topic. \
+By which language and framework combination I start with, would suit the me (as complete beginner to GUI) \
+I found out these ones \
+  C# (.NET, WPF, WindowsForms Uno Mono ... ) -> perfect easy, advanced GUI features, native look(since Microsoft), low or no code at all,  but only for windows \
+  Java (JavaFx, Swing ... ) -> cross-platfrom, a little learning required, moderate GUI features, but some performace issues \
+  C, C++  \
+      -> frameworks (Qt, wxWidgets, gtkmm, GTK+, Juce), old-school look, good-enough GUI, cross-platform (I guess) but solid performace \ 
+      -> going hard way (hard coded libraries, SDL2, openGL, some rendering stuff. Everything is by hand) \
       
 After I come to conclusion that none of them would work unless I really understand the underlaying processes (the behind the scenes). 
 Like what is GUI and what it is supposed to do, how perfect GUI should be and what it should contain and how the design and conecpt of software should be like.
