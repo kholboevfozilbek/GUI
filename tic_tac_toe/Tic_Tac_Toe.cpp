@@ -50,8 +50,20 @@ void Tic_Tac_Toe::Initialise()
 	welcome.set_dimensions(400, 20, 400, 50);
 
 	number_player_rect.set_dimensions(400, 90, 130, 30);
-	level_rect.set_dimensions(400, 130, 130, 30);
+	if(number_players == 1)
+		level_rect.set_dimensions(400, 130, 130, 30);
+	else
+	{
+		player1_info_board.set_dimensions(400, 130, 130, 20);
+		player2_info_board.set_dimensions(400, 155, 130, 20);
+		show_player1_symbol.set_dimensions(530, 130, 20, 20);
+		
+		show_player2_symbol.set_dimensions(530, 155, 20, 20);
 
+		whose_turn.set_dimensions(850, 200, 160, 40);
+		whoe_turn_symbol.set_dimensions(1010, 200, 30, 30);
+		Button whoe_turn_symbol;
+	}
 	ask_symbol_rect.set_dimensions(400, 20, 400, 50);
 	option_X.set_dimensions(450, 90, 20, 20);
 	option_X.set_surface("assets/images/x.bmp", renderer);
@@ -101,6 +113,9 @@ void Tic_Tac_Toe::Execute()
 
 	if (number_players == 1)
 		ask_single_user_symbol();
+	else
+		ask_players_symbols();
+
 
 	SDL_RenderClear(renderer);
 	while (running)
@@ -120,6 +135,8 @@ void Tic_Tac_Toe::Execute()
 			
 		if (number_players == 1) // lets handle single player mode first
 			single_player_game();
+		else
+			multiple_player_game();
 			
 		Render();
 	}
@@ -140,8 +157,10 @@ void Tic_Tac_Toe::Render()
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 
 	render_welcome();
-	render_information_specs();
-
+	if (number_players == 1)
+		render_information_specs();
+	else
+		render_information_specs_when_multiple();
 	display_board();
 
 	SDL_RenderPresent(renderer);
@@ -181,9 +200,8 @@ void Tic_Tac_Toe::render_information_specs()
 	string level_print;
 	if (number_players < 2)
 		mode = "Mode  Single Player";
-	else
-		mode = "Mode  Multiple Player";
 
+	
 	switch (level)
 	{
 	case 1 :
@@ -204,10 +222,79 @@ void Tic_Tac_Toe::render_information_specs()
 	text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
 	SDL_RenderCopy(renderer, text_texture, NULL, number_player_rect.get_ownRect());
 
+	if (number_players < 2)
+	{
+		text_surface = TTF_RenderText_Solid(our_font, level_print.c_str(), { 255, 0, 0 });
+		text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+		SDL_RenderCopy(renderer, text_texture, NULL, level_rect.get_ownRect());
+	}
+}
 
-	text_surface = TTF_RenderText_Solid(our_font, level_print.c_str(), { 255, 0, 0 });
+void Tic_Tac_Toe::render_information_specs_when_multiple()
+{
+	string mode = "Mode  Multiple Player";
+	string player1_info = "Player 1  ";
+	string player2_info = "Player 2  ";
+
+	text_surface = TTF_RenderText_Solid(our_font, mode.c_str(), { 255, 0, 0 });
 	text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
-	SDL_RenderCopy(renderer, text_texture, NULL, level_rect.get_ownRect());
+	SDL_RenderCopy(renderer, text_texture, NULL, number_player_rect.get_ownRect());
+
+	text_surface = TTF_RenderText_Solid(our_font, player1_info.c_str(), { 255, 0, 0 });
+	text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+	SDL_RenderCopy(renderer, text_texture, NULL, player1_info_board.get_ownRect());
+	
+	SDL_RenderCopy(renderer, show_player1_symbol.get_ownTexture(), NULL, show_player1_symbol.get_ownRect());
+
+	text_surface = TTF_RenderText_Solid(our_font,player2_info.c_str(), { 255, 0, 0 });
+	text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+	SDL_RenderCopy(renderer, text_texture, NULL, player2_info_board.get_ownRect());
+
+	SDL_RenderCopy(renderer, show_player2_symbol.get_ownTexture(), NULL, show_player2_symbol.get_ownRect());
+}
+
+void Tic_Tac_Toe::render_multiple_player_turn()
+{
+	if (player1.get_turn() == true)
+	{
+		text_surface = TTF_RenderText_Solid(our_font, "Player1 Your turn ", { 0, 0, 255 });
+		text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+		SDL_RenderCopy(renderer, text_texture, NULL, whose_turn.get_ownRect());
+
+		switch (player1.get_symbol())
+		{
+		case 'X':
+			whoe_turn_symbol.reset_surface_texture("assets/images/x.bmp", renderer);
+			SDL_RenderCopy(renderer, whoe_turn_symbol.get_ownTexture(), NULL, whoe_turn_symbol.get_ownRect());
+			break;
+		case 'O':
+			whoe_turn_symbol.reset_surface_texture("assets/images/o.bmp", renderer);
+			SDL_RenderCopy(renderer, whoe_turn_symbol.get_ownTexture(), NULL, whoe_turn_symbol.get_ownRect());
+			break;
+		default:
+			break;
+		}
+	}
+	else
+	{
+		text_surface = TTF_RenderText_Solid(our_font, "Player2 Your turn ", { 0, 0, 255 });
+		text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+		SDL_RenderCopy(renderer, text_texture, NULL, whose_turn.get_ownRect());
+
+		switch (player2.get_symbol())
+		{
+		case 'X':
+			whoe_turn_symbol.set_surface("assets/images/x.bmp", renderer);
+			SDL_RenderCopy(renderer, whoe_turn_symbol.get_ownTexture(), NULL, whoe_turn_symbol.get_ownRect());
+			break;
+		case 'O':
+			whoe_turn_symbol.set_surface("assets/images/o.bmp", renderer);
+			SDL_RenderCopy(renderer, whoe_turn_symbol.get_ownTexture(), NULL, whoe_turn_symbol.get_ownRect());
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void Tic_Tac_Toe::render_ask_symbol_rect()
@@ -254,6 +341,45 @@ void Tic_Tac_Toe::ask_single_user_symbol()
 	}
 }
 
+void Tic_Tac_Toe::ask_players_symbols()
+{
+	while (player1.get_symbol() == '\0' || player2.get_symbol() == '\0')
+	{
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
+		text_surface = TTF_RenderText_Solid(our_font, "Player 1 -   Choose a symbol", { 0, 255, 0 });
+		text_texture = SDL_CreateTextureFromSurface(renderer, text_surface);
+		SDL_RenderCopy(renderer, text_texture, NULL, ask_symbol_rect.get_ownRect());
+
+		render_optionX();
+		render_optionY();
+
+		while (SDL_PollEvent(&event))
+		{
+			if (event.type == SDL_QUIT)
+			{
+				break;
+			}
+		}
+
+		listen_user_symbol_input();
+		SDL_RenderPresent(renderer);
+	}
+
+	if (player1.get_symbol() == 'X')
+	{
+		show_player1_symbol.set_surface("assets/images/x.bmp", renderer);
+		show_player2_symbol.set_surface("assets/images/o.bmp", renderer);
+	}
+	else
+	{
+		show_player1_symbol.set_surface("assets/images/o.bmp", renderer);
+		show_player2_symbol.set_surface("assets/images/x.bmp", renderer);
+	}
+
+	player1.set_turn(true);
+	player2.set_turn(false);
+}
+
 void Tic_Tac_Toe::listen_user_symbol_input()
 {
 	SDL_Point mousePosition;
@@ -267,15 +393,14 @@ void Tic_Tac_Toe::listen_user_symbol_input()
 			if (number_players == 1)
 			{
 				our_single_user.set_symbol('X');
-				cout << "\nX has been captured" << endl;
 				our_single_user.set_turn(true);
 			}
 			else
 			{
 				player1.set_symbol('X');
 				player2.set_symbol('O');
-
 			}
+			
 		}
 	}
 	else if (SDL_PointInRect(&mousePosition, option_Y.get_ownRect()))
@@ -285,7 +410,6 @@ void Tic_Tac_Toe::listen_user_symbol_input()
 			if (number_players == 1)
 			{
 				our_single_user.set_symbol('O');
-				cout << "\nO has been captured" << endl;
 				our_single_user.set_turn(true);
 			}
 			else
@@ -338,6 +462,85 @@ void Tic_Tac_Toe::listen_user_game_input()
 				}
 			}
 		}
+	}
+}
+
+void Tic_Tac_Toe::listen_multiple_user_input()
+{
+	SDL_Point mousePosition;
+
+	mousePosition.x = event.motion.x;
+	mousePosition.y = event.motion.y;
+	for (int i = 0; i < 3; ++i)
+	{
+		for (int j = 0; j < 3; ++j)
+		{
+			if (SDL_PointInRect(&mousePosition, board_arr[i][j].get_ownRect()))
+			{
+				if (board_arr[i][j].get_emptyness() == true)
+				{
+					if (event.button.type == SDL_MOUSEBUTTONDOWN)
+					{
+						if (player1.get_turn() == true)
+						{
+							switch (player1.get_symbol())
+							{
+							case 'X':
+								board_arr[i][j].set_surface("assets/images/x.bmp", renderer);
+								SDL_RenderCopy(renderer, board_arr[i][j].get_ownTexture(), NULL, board_arr[i][j].get_ownRect());
+								board_arr[i][j].set_empty(false);
+								board_arr[i][j].set_placedChar('X');
+								player1.set_turn(false);
+								player2.set_turn(true);
+								break;
+
+							case 'O':
+								board_arr[i][j].set_surface("assets/images/o.bmp", renderer);
+								SDL_RenderCopy(renderer, board_arr[i][j].get_ownTexture(), NULL, board_arr[i][j].get_ownRect());
+								board_arr[i][j].set_empty(false);
+								board_arr[i][j].set_placedChar('O');
+								player1.set_turn(false);
+								player2.set_turn(true);
+								break;
+							default:
+								break;
+							}
+						}
+						else
+						{
+							// PLAYER 2 TURN
+
+							switch (player2.get_symbol())
+							{
+							case 'X':
+								board_arr[i][j].set_surface("assets/images/x.bmp", renderer);
+								SDL_RenderCopy(renderer, board_arr[i][j].get_ownTexture(), NULL, board_arr[i][j].get_ownRect());
+								board_arr[i][j].set_empty(false);
+								board_arr[i][j].set_placedChar('X');
+								player2.set_turn(false);
+								player1.set_turn(true);
+								break;
+
+							case 'O':
+								board_arr[i][j].set_surface("assets/images/o.bmp", renderer);
+								SDL_RenderCopy(renderer, board_arr[i][j].get_ownTexture(), NULL, board_arr[i][j].get_ownRect());
+								board_arr[i][j].set_empty(false);
+								board_arr[i][j].set_placedChar('O');
+								player2.set_turn(false);
+								player1.set_turn(true);
+								break;
+							default:
+								break;
+							}
+						}
+					}
+
+				}
+
+			}
+
+		}
+
 	}
 }
 
@@ -596,6 +799,13 @@ void Tic_Tac_Toe::single_player_game()
 	}
 }
 
+void Tic_Tac_Toe::multiple_player_game()
+{
+	render_multiple_player_turn();
+	
+	listen_multiple_user_input();
+}
+
 void Tic_Tac_Toe::single_player_mode()
 {
 	switch (level) // level only matters in single player mode only
@@ -755,7 +965,7 @@ void Tic_Tac_Toe::rowwise_block()
 		}
 
 		// I need to generate one random number x = from 0 to list_empty_spaces.size() - 1;
-		std:mt19937 gen(rd());
+		std::mt19937 gen(rd());
 		std::uniform_int_distribution<int> dist(0, list_empty_spaces.size() - 1);
 
 		x = dist(gen);
@@ -835,7 +1045,7 @@ void Tic_Tac_Toe::columnwise_block()
 		}
 
 		// I need to generate one random number x = from 0 to list_empty_spaces.size() - 1;
-		std:mt19937 gen(rd());
+		std::mt19937 gen(rd());
 		std::uniform_int_distribution<int> dist(0, list_empty_spaces.size() - 1);
 
 		x = dist(gen);
@@ -907,7 +1117,7 @@ void Tic_Tac_Toe::diagonally_block()
 		}
 
 		// I need to generate one random number x = from 0 to list_empty_spaces.size() - 1;
-		std:mt19937 gen(rd());
+		std::mt19937 gen(rd());
 		std::uniform_int_distribution<int> dist(0, list_empty_spaces.size() - 1);
 
 		x = dist(gen);
@@ -968,8 +1178,15 @@ bool Tic_Tac_Toe::first_row_check_block()
 					board_arr[0][2].set_empty(false);
 					board_arr[0][2].set_placedChar('O');
 					return true; // one place has been filled, and on one turn I can fill only one place 
-					break;
-
+				}
+				else
+				{
+					// I am presuming that offensive should be placed somewhere here!!!
+					board_arr[0][2].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][2].get_ownTexture(), NULL, board_arr[0][2].get_ownRect());
+					board_arr[0][2].set_empty(false);
+					board_arr[0][2].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
 				}
 				break;
 			case 'O':
@@ -980,7 +1197,14 @@ bool Tic_Tac_Toe::first_row_check_block()
 					board_arr[0][2].set_empty(false);
 					board_arr[0][2].set_placedChar('X');
 					return true;  // one place has been filled, and on one turn I can fill only one place
-					break;
+				}
+				else
+				{
+					board_arr[0][2].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][2].get_ownTexture(), NULL, board_arr[0][2].get_ownRect());
+					board_arr[0][2].set_empty(false);
+					board_arr[0][2].set_placedChar('O');
+					return true; // does not matter offensive/defensve I am placing a char that matters
 				}
 				break;
 			default:
@@ -1005,7 +1229,14 @@ bool Tic_Tac_Toe::first_row_check_block()
 					board_arr[0][0].set_empty(false);
 					board_arr[0][0].set_placedChar('O');
 					return true;
-					break;
+				}
+				else
+				{
+					board_arr[0][0].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][0].get_ownTexture(), NULL, board_arr[0][0].get_ownRect());
+					board_arr[0][0].set_empty(false);
+					board_arr[0][0].set_placedChar('X');
+					return true;
 				}
 				break;
 			case 'O':
@@ -1016,7 +1247,14 @@ bool Tic_Tac_Toe::first_row_check_block()
 					board_arr[0][0].set_empty(false);
 					board_arr[0][0].set_placedChar('X');
 					return true;
-					break;
+				}
+				else
+				{
+					board_arr[0][0].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][0].get_ownTexture(), NULL, board_arr[0][0].get_ownRect());
+					board_arr[0][0].set_empty(false);
+					board_arr[0][0].set_placedChar('O');
+					return true;
 				}
 				break;
 			default:
@@ -1040,8 +1278,14 @@ bool Tic_Tac_Toe::first_row_check_block()
 					board_arr[0][1].set_empty(false);
 					board_arr[0][1].set_placedChar('O');
 					return true;
-					break;
-
+				}
+				else
+				{
+					board_arr[0][1].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][1].get_ownTexture(), NULL, board_arr[0][1].get_ownRect());
+					board_arr[0][1].set_empty(false);
+					board_arr[0][1].set_placedChar('X');
+					return true;
 				}
 				break;
 			case 'O':
@@ -1052,7 +1296,14 @@ bool Tic_Tac_Toe::first_row_check_block()
 					board_arr[0][1].set_empty(false);
 					board_arr[0][1].set_placedChar('X');
 					return true;
-					break;
+				}
+				else
+				{
+					board_arr[0][1].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][1].get_ownTexture(), NULL, board_arr[0][1].get_ownRect());
+					board_arr[0][1].set_empty(false);
+					board_arr[0][1].set_placedChar('O');
+					return true;
 				}
 				break;
 			default:
@@ -1086,7 +1337,14 @@ bool Tic_Tac_Toe::second_row_check_block()
 					board_arr[1][2].set_empty(false);
 					board_arr[1][2].set_placedChar('O');
 					return true;
-					break;
+				}
+				else
+				{
+					board_arr[1][2].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][2].get_ownTexture(), NULL, board_arr[1][2].get_ownRect());
+					board_arr[1][2].set_empty(false);
+					board_arr[1][2].set_placedChar('X');
+					return true;
 				}
 				break;
 			case 'O':
@@ -1097,7 +1355,14 @@ bool Tic_Tac_Toe::second_row_check_block()
 					board_arr[1][2].set_empty(false);
 					board_arr[1][2].set_placedChar('X');
 					return true;
-					break;
+				}
+				else
+				{
+					board_arr[1][2].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][2].get_ownTexture(), NULL, board_arr[1][2].get_ownRect());
+					board_arr[1][2].set_empty(false);
+					board_arr[1][2].set_placedChar('O');
+					return true;
 				}
 				break;
 			default:
@@ -1122,7 +1387,14 @@ bool Tic_Tac_Toe::second_row_check_block()
 					board_arr[1][0].set_empty(false);
 					board_arr[1][0].set_placedChar('O');
 					return true;
-					break;
+				}
+				else
+				{
+					board_arr[1][0].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][0].get_ownTexture(), NULL, board_arr[1][0].get_ownRect());
+					board_arr[1][0].set_empty(false);
+					board_arr[1][0].set_placedChar('X');
+					return true;
 				}
 				break;
 			case 'O':
@@ -1133,7 +1405,14 @@ bool Tic_Tac_Toe::second_row_check_block()
 					board_arr[1][0].set_empty(false);
 					board_arr[1][0].set_placedChar('X');
 					return true;
-					break;
+				}
+				else
+				{
+					board_arr[1][0].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][0].get_ownTexture(), NULL, board_arr[1][0].get_ownRect());
+					board_arr[1][0].set_empty(false);
+					board_arr[1][0].set_placedChar('O');
+					return true;
 				}
 				break;
 			default:
@@ -1157,7 +1436,14 @@ bool Tic_Tac_Toe::second_row_check_block()
 					board_arr[1][1].set_empty(false);
 					board_arr[1][1].set_placedChar('O');
 					return true;
-					break;
+				}
+				else
+				{
+					board_arr[1][1].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][1].get_ownTexture(), NULL, board_arr[1][1].get_ownRect());
+					board_arr[1][1].set_empty(false);
+					board_arr[1][1].set_placedChar('X');
+					return true;
 				}
 				break;
 			case 'O':
@@ -1168,7 +1454,14 @@ bool Tic_Tac_Toe::second_row_check_block()
 					board_arr[1][1].set_empty(false);
 					board_arr[1][1].set_placedChar('X');
 					return true;
-					break;
+				}
+				else
+				{
+					board_arr[1][1].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][1].get_ownTexture(), NULL, board_arr[1][1].get_ownRect());
+					board_arr[1][1].set_empty(false);
+					board_arr[1][1].set_placedChar('O');
+					return true;
 				}
 				break;
 			default:
@@ -1192,18 +1485,40 @@ bool Tic_Tac_Toe::third_row_check_block()
 			switch (board_arr[2][1].get_placedChar())
 			{
 			case 'X': // we should place exactly opposite
-				board_arr[2][2].set_surface("assets/images/o.bmp", renderer);
-				SDL_RenderCopy(renderer, board_arr[2][2].get_ownTexture(), NULL, board_arr[2][2].get_ownRect());
-				board_arr[2][2].set_empty(false);
-				board_arr[2][2].set_placedChar('O');
-				return true;
+				if (our_single_user.get_symbol() != 'O')
+				{
+					board_arr[2][2].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][2].get_ownTexture(), NULL, board_arr[2][2].get_ownRect());
+					board_arr[2][2].set_empty(false);
+					board_arr[2][2].set_placedChar('O');
+					return true;
+				}
+				else
+				{
+					board_arr[2][2].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][2].get_ownTexture(), NULL, board_arr[2][2].get_ownRect());
+					board_arr[2][2].set_empty(false);
+					board_arr[2][2].set_placedChar('X');
+					return true;
+				}
 				break;
 			case 'O':
-				board_arr[2][2].set_surface("assets/images/x.bmp", renderer);
-				SDL_RenderCopy(renderer, board_arr[2][2].get_ownTexture(), NULL, board_arr[2][2].get_ownRect());
-				board_arr[2][2].set_empty(false);
-				board_arr[2][2].set_placedChar('X');
-				return true;
+				if (our_single_user.get_symbol() != 'X')
+				{
+					board_arr[2][2].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][2].get_ownTexture(), NULL, board_arr[2][2].get_ownRect());
+					board_arr[2][2].set_empty(false);
+					board_arr[2][2].set_placedChar('X');
+					return true;
+				}
+				else
+				{
+					board_arr[2][2].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][2].get_ownTexture(), NULL, board_arr[2][2].get_ownRect());
+					board_arr[2][2].set_empty(false);
+					board_arr[2][2].set_placedChar('O');
+					return true;
+				}
 				break;
 			default:
 				break;
@@ -1220,18 +1535,40 @@ bool Tic_Tac_Toe::third_row_check_block()
 			switch (board_arr[2][1].get_placedChar())
 			{
 			case 'X': // we should place exactly opposite
-				board_arr[2][0].set_surface("assets/images/o.bmp", renderer);
-				SDL_RenderCopy(renderer, board_arr[2][0].get_ownTexture(), NULL, board_arr[2][0].get_ownRect());
-				board_arr[2][0].set_empty(false);
-				board_arr[2][0].set_placedChar('O');
-				return true;
+				if (our_single_user.get_symbol() != 'O')
+				{
+					board_arr[2][0].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][0].get_ownTexture(), NULL, board_arr[2][0].get_ownRect());
+					board_arr[2][0].set_empty(false);
+					board_arr[2][0].set_placedChar('O');
+					return true;
+				}
+				else
+				{
+					board_arr[2][0].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][0].get_ownTexture(), NULL, board_arr[2][0].get_ownRect());
+					board_arr[2][0].set_empty(false);
+					board_arr[2][0].set_placedChar('X');
+					return true;
+				}
 				break;
 			case 'O':
-				board_arr[2][0].set_surface("assets/images/x.bmp", renderer);
-				SDL_RenderCopy(renderer, board_arr[2][0].get_ownTexture(), NULL, board_arr[2][0].get_ownRect());
-				board_arr[2][0].set_empty(false);
-				board_arr[2][0].set_placedChar('X');
-				return true;
+				if (our_single_user.get_symbol() != 'X')
+				{
+					board_arr[2][0].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][0].get_ownTexture(), NULL, board_arr[2][0].get_ownRect());
+					board_arr[2][0].set_empty(false);
+					board_arr[2][0].set_placedChar('X');
+					return true;
+				}
+				else
+				{
+					board_arr[2][0].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][0].get_ownTexture(), NULL, board_arr[2][0].get_ownRect());
+					board_arr[2][0].set_empty(false);
+					board_arr[2][0].set_placedChar('O');
+					return true;
+				}
 				break;
 			default:
 				break;
@@ -1248,18 +1585,40 @@ bool Tic_Tac_Toe::third_row_check_block()
 			switch (board_arr[2][0].get_placedChar())
 			{
 			case 'X': // we should place exactly opposite
-				board_arr[2][1].set_surface("assets/images/o.bmp", renderer);
-				SDL_RenderCopy(renderer, board_arr[2][1].get_ownTexture(), NULL, board_arr[2][1].get_ownRect());
-				board_arr[2][1].set_empty(false);
-				board_arr[2][1].set_placedChar('O');
-				return true;
+				if (our_single_user.get_symbol() != 'O')
+				{
+					board_arr[2][1].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][1].get_ownTexture(), NULL, board_arr[2][1].get_ownRect());
+					board_arr[2][1].set_empty(false);
+					board_arr[2][1].set_placedChar('O');
+					return true;
+				}
+				else
+				{
+					board_arr[2][1].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][1].get_ownTexture(), NULL, board_arr[2][1].get_ownRect());
+					board_arr[2][1].set_empty(false);
+					board_arr[2][1].set_placedChar('X');
+					return true;
+				}
 				break;
 			case 'O':
-				board_arr[2][1].set_surface("assets/images/x.bmp", renderer);
-				SDL_RenderCopy(renderer, board_arr[2][1].get_ownTexture(), NULL, board_arr[2][1].get_ownRect());
-				board_arr[2][1].set_empty(false);
-				board_arr[2][1].set_placedChar('X');
-				return true;
+				if (our_single_user.get_symbol() != 'X')
+				{
+					board_arr[2][1].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][1].get_ownTexture(), NULL, board_arr[2][1].get_ownRect());
+					board_arr[2][1].set_empty(false);
+					board_arr[2][1].set_placedChar('X');
+					return true;
+				}
+				else
+				{
+					board_arr[2][1].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][1].get_ownTexture(), NULL, board_arr[2][1].get_ownRect());
+					board_arr[2][1].set_empty(false);
+					board_arr[2][1].set_placedChar('O');
+					return true;
+				}
 				break;
 			default:
 				break;
@@ -1293,7 +1652,14 @@ bool Tic_Tac_Toe::first_column_check_block()
 					board_arr[2][0].set_empty(false);
 					board_arr[2][0].set_placedChar('O');
 					return true; // one place has been filled, and on one turn I can fill only one place 
-					break;
+				}
+				else
+				{
+					board_arr[2][0].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][0].get_ownTexture(), NULL, board_arr[2][0].get_ownRect());
+					board_arr[2][0].set_empty(false);
+					board_arr[2][0].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
 				}
 				break;
 			case 'O':
@@ -1304,7 +1670,14 @@ bool Tic_Tac_Toe::first_column_check_block()
 					board_arr[2][0].set_empty(false);
 					board_arr[2][0].set_placedChar('X');
 					return true;  // one place has been filled, and on one turn I can fill only one place
-					break;
+				}
+				else
+				{
+					board_arr[2][0].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][0].get_ownTexture(), NULL, board_arr[2][0].get_ownRect());
+					board_arr[2][0].set_empty(false);
+					board_arr[2][0].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
 				}
 				break;
 			default:
@@ -1332,8 +1705,15 @@ bool Tic_Tac_Toe::first_column_check_block()
 					SDL_RenderCopy(renderer, board_arr[0][0].get_ownTexture(), NULL, board_arr[0][0].get_ownRect());
 					board_arr[0][0].set_empty(false);
 					board_arr[0][0].set_placedChar('O');
-					return true; // one place has been filled, and on one turn I can fill only one place 
-					break;
+					return true; // one place has been filled, and on one turn I can fill only one place
+				}
+				else
+				{
+					board_arr[0][0].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][0].get_ownTexture(), NULL, board_arr[0][0].get_ownRect());
+					board_arr[0][0].set_empty(false);
+					board_arr[0][0].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
 				}
 				break;
 			case 'O':
@@ -1344,7 +1724,15 @@ bool Tic_Tac_Toe::first_column_check_block()
 					board_arr[0][0].set_empty(false);
 					board_arr[0][0].set_placedChar('X');
 					return true;  // one place has been filled, and on one turn I can fill only one place
-					break;
+					
+				}
+				else
+				{
+					board_arr[0][0].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][0].get_ownTexture(), NULL, board_arr[0][0].get_ownRect());
+					board_arr[0][0].set_empty(false);
+					board_arr[0][0].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place
 				}
 				break;
 			default:
@@ -1374,7 +1762,15 @@ bool Tic_Tac_Toe::first_column_check_block()
 					board_arr[1][0].set_empty(false);
 					board_arr[1][0].set_placedChar('O');
 					return true; // one place has been filled, and on one turn I can fill only one place 
-					break;
+					
+				}
+				else
+				{
+					board_arr[1][0].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][0].get_ownTexture(), NULL, board_arr[1][0].get_ownRect());
+					board_arr[1][0].set_empty(false);
+					board_arr[1][0].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
 				}
 				break;
 			case 'O':
@@ -1385,7 +1781,15 @@ bool Tic_Tac_Toe::first_column_check_block()
 					board_arr[1][0].set_empty(false);
 					board_arr[1][0].set_placedChar('X');
 					return true;  // one place has been filled, and on one turn I can fill only one place
-					break;
+					
+				}
+				else
+				{
+					board_arr[1][0].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][0].get_ownTexture(), NULL, board_arr[1][0].get_ownRect());
+					board_arr[1][0].set_empty(false);
+					board_arr[1][0].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
 				}
 				break;
 			default:
@@ -1423,7 +1827,15 @@ bool Tic_Tac_Toe::second_column_check_block()
 					board_arr[2][1].set_empty(false);
 					board_arr[2][1].set_placedChar('O');
 					return true; // one place has been filled, and on one turn I can fill only one place 
-					break;
+					
+				}
+				else
+				{
+					board_arr[2][1].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][1].get_ownTexture(), NULL, board_arr[2][1].get_ownRect());
+					board_arr[2][1].set_empty(false);
+					board_arr[2][1].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
 				}
 				break;
 			case 'O':
@@ -1434,7 +1846,15 @@ bool Tic_Tac_Toe::second_column_check_block()
 					board_arr[2][1].set_empty(false);
 					board_arr[2][1].set_placedChar('X');
 					return true;  // one place has been filled, and on one turn I can fill only one place
-					break;
+					
+				}
+				else
+				{
+					board_arr[2][1].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][1].get_ownTexture(), NULL, board_arr[2][1].get_ownRect());
+					board_arr[2][1].set_empty(false);
+					board_arr[2][1].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
 				}
 				break;
 			default:
@@ -1464,7 +1884,15 @@ bool Tic_Tac_Toe::second_column_check_block()
 					board_arr[0][1].set_empty(false);
 					board_arr[0][1].set_placedChar('O');
 					return true; // one place has been filled, and on one turn I can fill only one place 
-					break;
+					
+				}
+				else
+				{
+					board_arr[0][1].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][1].get_ownTexture(), NULL, board_arr[0][1].get_ownRect());
+					board_arr[0][1].set_empty(false);
+					board_arr[0][1].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
 				}
 				break;
 			case 'O':
@@ -1475,7 +1903,15 @@ bool Tic_Tac_Toe::second_column_check_block()
 					board_arr[0][1].set_empty(false);
 					board_arr[0][1].set_placedChar('X');
 					return true;  // one place has been filled, and on one turn I can fill only one place
-					break;
+					
+				}
+				else
+				{
+					board_arr[0][1].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][1].get_ownTexture(), NULL, board_arr[0][1].get_ownRect());
+					board_arr[0][1].set_empty(false);
+					board_arr[0][1].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
 				}
 				break;
 			default:
@@ -1505,7 +1941,15 @@ bool Tic_Tac_Toe::second_column_check_block()
 					board_arr[1][1].set_empty(false);
 					board_arr[1][1].set_placedChar('O');
 					return true; // one place has been filled, and on one turn I can fill only one place 
-					break;
+					
+				}
+				else
+				{
+					board_arr[1][1].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][1].get_ownTexture(), NULL, board_arr[1][1].get_ownRect());
+					board_arr[1][1].set_empty(false);
+					board_arr[1][1].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
 				}
 				break;
 			case 'O':
@@ -1516,7 +1960,15 @@ bool Tic_Tac_Toe::second_column_check_block()
 					board_arr[1][1].set_empty(false);
 					board_arr[1][1].set_placedChar('X');
 					return true;  // one place has been filled, and on one turn I can fill only one place
-					break;
+					
+				}
+				else
+				{
+					board_arr[1][1].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][1].get_ownTexture(), NULL, board_arr[1][1].get_ownRect());
+					board_arr[1][1].set_empty(false);
+					board_arr[1][1].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
 				}
 				break;
 			default:
@@ -1555,7 +2007,15 @@ bool Tic_Tac_Toe::third_column_check_block()
 					board_arr[2][2].set_empty(false);
 					board_arr[2][2].set_placedChar('O');
 					return true; // one place has been filled, and on one turn I can fill only one place 
-					break;
+					
+				}
+				else
+				{
+					board_arr[2][2].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][2].get_ownTexture(), NULL, board_arr[2][2].get_ownRect());
+					board_arr[2][2].set_empty(false);
+					board_arr[2][2].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
 				}
 				break;
 			case 'O':
@@ -1566,7 +2026,15 @@ bool Tic_Tac_Toe::third_column_check_block()
 					board_arr[2][2].set_empty(false);
 					board_arr[2][2].set_placedChar('X');
 					return true;  // one place has been filled, and on one turn I can fill only one place
-					break;
+					
+				}
+				else
+				{
+					board_arr[2][2].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][2].get_ownTexture(), NULL, board_arr[2][2].get_ownRect());
+					board_arr[2][2].set_empty(false);
+					board_arr[2][2].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
 				}
 				break;
 			default:
@@ -1598,7 +2066,15 @@ bool Tic_Tac_Toe::third_column_check_block()
 					board_arr[0][2].set_empty(false);
 					board_arr[0][2].set_placedChar('O');
 					return true; // one place has been filled, and on one turn I can fill only one place 
-					break;
+					
+				}
+				else
+				{
+					board_arr[0][2].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][2].get_ownTexture(), NULL, board_arr[0][2].get_ownRect());
+					board_arr[0][2].set_empty(false);
+					board_arr[0][2].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
 				}
 				break;
 			case 'O':
@@ -1611,6 +2087,14 @@ bool Tic_Tac_Toe::third_column_check_block()
 					return true;  // one place has been filled, and on one turn I can fill only one place
 					break;
 				}
+				else
+				{
+					board_arr[0][2].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][2].get_ownTexture(), NULL, board_arr[0][2].get_ownRect());
+					board_arr[0][2].set_empty(false);
+					board_arr[0][2].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
+				}
 				break;
 			default:
 				break;
@@ -1618,6 +2102,62 @@ bool Tic_Tac_Toe::third_column_check_block()
 		}
 		// if this  -  -  > combination does not work it is too early to return false we have to check other combinations as well 
 	}
+
+
+	/*    *
+		  x
+		  *
+	*/
+
+	if (board_arr[2][2].get_placedChar() == board_arr[0][2].get_placedChar())
+	{
+		if (board_arr[1][2].get_emptyness() == true)
+		{
+			switch (board_arr[0][2].get_placedChar())
+			{
+			case 'X': // we should place exactly opposite
+				if (our_single_user.get_symbol() != 'O')
+				{
+					board_arr[1][2].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][2].get_ownTexture(), NULL, board_arr[1][2].get_ownRect());
+					board_arr[1][2].set_empty(false);
+					board_arr[1][2].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
+
+				}
+				else
+				{
+					board_arr[1][2].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][2].get_ownTexture(), NULL, board_arr[1][2].get_ownRect());
+					board_arr[1][2].set_empty(false);
+					board_arr[1][2].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
+				}
+				break;
+			case 'O':
+				if (our_single_user.get_symbol() != 'X')
+				{
+					board_arr[1][2].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][2].get_ownTexture(), NULL, board_arr[1][2].get_ownRect());
+					board_arr[1][2].set_empty(false);
+					board_arr[1][2].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
+				}
+				else
+				{
+					board_arr[1][2].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][2].get_ownTexture(), NULL, board_arr[1][2].get_ownRect());
+					board_arr[1][2].set_empty(false);
+					board_arr[1][2].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
+				}
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
 
 	// if no combination works we have to let upper columnwise check know that from first row no place has been filled 
 	// such that we go for second row
@@ -1646,7 +2186,15 @@ bool Tic_Tac_Toe::first_diagonal_check_block()
 					board_arr[2][0].set_empty(false);
 					board_arr[2][0].set_placedChar('O');
 					return true; // one place has been filled, and on one turn I can fill only one place 
-					break;
+					
+				}
+				else
+				{
+					board_arr[2][0].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][0].get_ownTexture(), NULL, board_arr[2][0].get_ownRect());
+					board_arr[2][0].set_empty(false);
+					board_arr[2][0].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
 				}
 				break;
 			case 'O':
@@ -1657,7 +2205,14 @@ bool Tic_Tac_Toe::first_diagonal_check_block()
 					board_arr[2][0].set_empty(false);
 					board_arr[2][0].set_placedChar('X');
 					return true;  // one place has been filled, and on one turn I can fill only one place
-					break;
+				}
+				else
+				{
+					board_arr[2][0].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][0].get_ownTexture(), NULL, board_arr[2][0].get_ownRect());
+					board_arr[2][0].set_empty(false);
+					board_arr[2][0].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
 				}
 				break;
 			default:
@@ -1686,7 +2241,15 @@ bool Tic_Tac_Toe::first_diagonal_check_block()
 					board_arr[0][2].set_empty(false);
 					board_arr[0][2].set_placedChar('O');
 					return true; // one place has been filled, and on one turn I can fill only one place 
-					break;
+					
+				}
+				else
+				{
+					board_arr[0][2].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][2].get_ownTexture(), NULL, board_arr[0][2].get_ownRect());
+					board_arr[0][2].set_empty(false);
+					board_arr[0][2].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
 				}
 				break;
 			case 'O':
@@ -1697,7 +2260,15 @@ bool Tic_Tac_Toe::first_diagonal_check_block()
 					board_arr[0][2].set_empty(false);
 					board_arr[0][2].set_placedChar('X');
 					return true;  // one place has been filled, and on one turn I can fill only one place
-					break;
+					
+				}
+				else
+				{
+					board_arr[0][2].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][2].get_ownTexture(), NULL, board_arr[0][2].get_ownRect());
+					board_arr[0][2].set_empty(false);
+					board_arr[0][2].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
 				}
 				break;
 			default:
@@ -1726,7 +2297,15 @@ bool Tic_Tac_Toe::first_diagonal_check_block()
 					board_arr[1][1].set_empty(false);
 					board_arr[1][1].set_placedChar('O');
 					return true; // one place has been filled, and on one turn I can fill only one place 
-					break;
+					
+				}
+				else
+				{
+					board_arr[1][1].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][1].get_ownTexture(), NULL, board_arr[1][1].get_ownRect());
+					board_arr[1][1].set_empty(false);
+					board_arr[1][1].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
 				}
 				break;
 			case 'O':
@@ -1737,7 +2316,15 @@ bool Tic_Tac_Toe::first_diagonal_check_block()
 					board_arr[1][1].set_empty(false);
 					board_arr[1][1].set_placedChar('X');
 					return true;  // one place has been filled, and on one turn I can fill only one place
-					break;
+					
+				}
+				else
+				{
+					board_arr[1][1].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][1].get_ownTexture(), NULL, board_arr[1][1].get_ownRect());
+					board_arr[1][1].set_empty(false);
+					board_arr[1][1].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
 				}
 				break;
 			default:
@@ -1774,7 +2361,15 @@ bool Tic_Tac_Toe::second_diagonal_check_block()
 					board_arr[2][2].set_empty(false);
 					board_arr[2][2].set_placedChar('O');
 					return true; // one place has been filled, and on one turn I can fill only one place 
-					break;
+					
+				}
+				else
+				{
+					board_arr[2][2].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][2].get_ownTexture(), NULL, board_arr[2][2].get_ownRect());
+					board_arr[2][2].set_empty(false);
+					board_arr[2][2].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
 				}
 				break;
 			case 'O':
@@ -1785,7 +2380,15 @@ bool Tic_Tac_Toe::second_diagonal_check_block()
 					board_arr[2][2].set_empty(false);
 					board_arr[2][2].set_placedChar('X');
 					return true;  // one place has been filled, and on one turn I can fill only one place
-					break;
+					
+				}
+				else
+				{
+					board_arr[2][2].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[2][2].get_ownTexture(), NULL, board_arr[2][2].get_ownRect());
+					board_arr[2][2].set_empty(false);
+					board_arr[2][2].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
 				}
 				break;
 			default:
@@ -1814,7 +2417,15 @@ bool Tic_Tac_Toe::second_diagonal_check_block()
 					board_arr[0][0].set_empty(false);
 					board_arr[0][0].set_placedChar('O');
 					return true; // one place has been filled, and on one turn I can fill only one place 
-					break;
+					
+				}
+				else
+				{
+					board_arr[0][0].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][0].get_ownTexture(), NULL, board_arr[0][0].get_ownRect());
+					board_arr[0][0].set_empty(false);
+					board_arr[0][0].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
 				}
 				break;
 			case 'O':
@@ -1825,7 +2436,15 @@ bool Tic_Tac_Toe::second_diagonal_check_block()
 					board_arr[0][0].set_empty(false);
 					board_arr[0][0].set_placedChar('X');
 					return true;  // one place has been filled, and on one turn I can fill only one place
-					break;
+					
+				}
+				else
+				{
+					board_arr[0][0].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[0][0].get_ownTexture(), NULL, board_arr[0][0].get_ownRect());
+					board_arr[0][0].set_empty(false);
+					board_arr[0][0].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
 				}
 				break;
 			default:
@@ -1854,7 +2473,15 @@ bool Tic_Tac_Toe::second_diagonal_check_block()
 					board_arr[1][1].set_empty(false);
 					board_arr[1][1].set_placedChar('O');
 					return true; // one place has been filled, and on one turn I can fill only one place 
-					break;
+					
+				}
+				else
+				{
+					board_arr[1][1].set_surface("assets/images/x.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][1].get_ownTexture(), NULL, board_arr[1][1].get_ownRect());
+					board_arr[1][1].set_empty(false);
+					board_arr[1][1].set_placedChar('X');
+					return true;  // one place has been filled, and on one turn I can fill only one place
 				}
 				break;
 			case 'O':
@@ -1865,7 +2492,15 @@ bool Tic_Tac_Toe::second_diagonal_check_block()
 					board_arr[1][1].set_empty(false);
 					board_arr[1][1].set_placedChar('X');
 					return true;  // one place has been filled, and on one turn I can fill only one place
-					break;
+					
+				}
+				else
+				{
+					board_arr[1][1].set_surface("assets/images/o.bmp", renderer);
+					SDL_RenderCopy(renderer, board_arr[1][1].get_ownTexture(), NULL, board_arr[1][1].get_ownRect());
+					board_arr[1][1].set_empty(false);
+					board_arr[1][1].set_placedChar('O');
+					return true; // one place has been filled, and on one turn I can fill only one place 
 				}
 				break;
 			default:

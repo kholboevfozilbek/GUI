@@ -39,13 +39,21 @@ private:
 	Button option_X;
 	Button option_Y;
 
-	int number_players=1; // by default single player
-	int level=1;          // by default beginner mode
+	int number_players=0; // by default single player
+	int level=0;          // by default beginner mode
 	
 	User our_single_user;
 
 	User player1;
 	User player2;
+
+	Window_Rect player1_info_board;
+	Button show_player1_symbol;
+	Button show_player2_symbol;
+	Window_Rect player2_info_board;
+
+	Window_Rect whose_turn;
+	Button whoe_turn_symbol;
 
 	std::random_device rd;
 	
@@ -66,14 +74,19 @@ public:
 
 	void render_welcome();
 	void render_information_specs();
+	void render_information_specs_when_multiple();
+	void render_multiple_player_turn();
 	void render_ask_symbol_rect();
 	void render_optionX();
 	void render_optionY();
 	void render_exit();
 
+
 	void ask_single_user_symbol();
+	void ask_players_symbols();
 	void listen_user_symbol_input();
 	void listen_user_game_input();
+	void listen_multiple_user_input();
 	
 	bool win();
 	bool wait_user_exit_win();
@@ -87,6 +100,7 @@ public:
 		level = lev;
 	}
 
+	void multiple_player_game();
 	void single_player_game();
 	void single_player_mode();
 	void beginner_level_game();

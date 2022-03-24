@@ -16,8 +16,8 @@ private:
 
 	SDL_Rect own_rectangle;
 	bool active;
-	SDL_Surface* own_surface;
-	SDL_Texture* own_texture;
+	SDL_Surface* own_surface = nullptr;
+	SDL_Texture* own_texture = nullptr;
 
 public:
 
@@ -77,6 +77,18 @@ public:
 
 	void set_surface(const char* filepath, SDL_Renderer* renderer)
 	{
+		own_surface = SDL_LoadBMP(filepath);
+		own_texture = SDL_CreateTextureFromSurface(renderer, own_surface);
+	}
+
+	void reset_surface_texture(const char* filepath, SDL_Renderer* renderer)
+	{
+		if (this->own_surface != nullptr)
+		{
+			SDL_FreeSurface(this->own_surface);
+			SDL_DestroyTexture(this->own_texture);
+		}
+
 		own_surface = SDL_LoadBMP(filepath);
 		own_texture = SDL_CreateTextureFromSurface(renderer, own_surface);
 	}
